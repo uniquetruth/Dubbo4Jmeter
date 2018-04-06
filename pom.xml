@@ -1,0 +1,127 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>me.uniqueT.Jmeter.plugin</groupId>
+  <artifactId>dubboSampler</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <name>dubbo</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>3.8.1</version>
+	</dependency>
+    <dependency>
+    	<groupId>com.google.code.gson</groupId>
+    	<artifactId>gson</artifactId>
+    	<version>2.8.2</version>
+	</dependency>
+	<dependency>
+    	<groupId>com.fifesoft</groupId>
+    	<artifactId>rsyntaxtextarea</artifactId>
+    	<version>2.6.0</version>
+	</dependency>
+	<dependency>
+    	<groupId>commons-net</groupId>
+    	<artifactId>commons-net</artifactId>
+    	<version>3.6</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.alibaba</groupId>
+ 		<artifactId>dubbo</artifactId>
+  		<version>2.5.3</version>
+	</dependency>
+	<dependency>
+    	<groupId>org.apache.jmeter</groupId>
+    	<artifactId>ApacheJMeter_components</artifactId>
+    <version>4.0</version>
+	</dependency>
+    <dependency>
+    	<groupId>org.apache.jmeter</groupId>
+    	<artifactId>ApacheJMeter_core</artifactId>
+    	<version>4.0</version>
+	</dependency>
+	<dependency>
+    	<groupId>avalon-framework</groupId>
+    	<artifactId>avalon-framework</artifactId>
+    	<version>4.1.5</version>
+	</dependency>
+	<dependency>
+  		<groupId>jboss</groupId>
+  		<artifactId>javassist</artifactId>
+  		<version>3.4.ga</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.apache.jmeter</groupId>
+  		<artifactId>jorphan</artifactId>
+  		<version>3.3</version>
+	</dependency>
+	<dependency>
+  		<groupId>logkit</groupId>
+  		<artifactId>logkit</artifactId>
+  		<version>2.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.jboss.netty</groupId>
+  		<artifactId>netty</artifactId>
+  		<version>3.2.9.Final</version>
+	</dependency>
+  </dependencies>
+  <build>
+        <plugins>
+
+            <!-- 下面这个plugin-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix><!--指定classpath的前缀-->
+                            <mainClass>Main</mainClass><!--指定主类的类名-->
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+
+            <!--  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+
+                            <!--指定outputDirectory-->
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+        </plugins>
+    </build>
+
+</project>
