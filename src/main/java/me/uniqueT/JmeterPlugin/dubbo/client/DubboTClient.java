@@ -84,7 +84,6 @@ public class DubboTClient implements ClientCI {
 		timeout = timesecond;
 	}
 
-	@Override
 	public void init(String _hostIp, int _port) throws IOException {
 		telnetClient = new TelnetClient();
 		telnetClient.connect(_hostIp, _port);
@@ -92,8 +91,7 @@ public class DubboTClient implements ClientCI {
 		inputStream = telnetClient.getInputStream();
 		outputStream = telnetClient.getOutputStream();
 	}
-
-	@Override
+	
 	public void build(String _infName, String _method, String _arguments) throws ClassNotFoundException {
 		method = _method;
 		arguments = _arguments;
@@ -101,7 +99,6 @@ public class DubboTClient implements ClientCI {
 		executeCmd(cmd);
 	}
 
-	@Override
 	public String send() throws IOException {
 		StringBuffer sb = new StringBuffer("invoke ").append(method).append("(");
 		sb.append(arguments).append(")");

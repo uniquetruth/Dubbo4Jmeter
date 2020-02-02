@@ -42,7 +42,6 @@ public class GenericSClient implements ClientCI {
 	private int timeout = DEFAULT_TIMEOUT;
 
 	//不真正进行连接，在send的时候再连接服务端
-	@Override
 	public void init(String ip, int port) throws IOException {
 		reference = new ReferenceConfig<GenericService>();
 		reference.setGeneric(true);
@@ -125,7 +124,6 @@ public class GenericSClient implements ClientCI {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public String send() throws IOException {
 		
 		cache = ReferenceConfigCache.getCache();
@@ -248,7 +246,6 @@ public class GenericSClient implements ClientCI {
 		return "df";
 	}
 
-	@Override
 	public void close() {
 		//System.out.println("now closing the client");
 		/*if(reference!=null)
@@ -257,7 +254,6 @@ public class GenericSClient implements ClientCI {
 		genericService = null;
 	}
 
-	@Override
 	public void setTime(int timesecond) {
 		/*timeout = timesecond;
 		if(reference!=null){

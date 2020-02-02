@@ -9,10 +9,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.ulic.loadtest.plugin.dubbo.client.ClientCI;
-import com.ulic.loadtest.plugin.dubbo.client.DubboClientFactory;
-import com.ulic.loadtest.plugin.dubbo.client.GenericSClient;
-import com.ulic.loadtest.plugin.dubbo.util.JsonFormatTool;
+import me.uniqueT.JmeterPlugin.dubbo.client.ClientCI;
+import me.uniqueT.JmeterPlugin.dubbo.client.DubboClientFactory;
+import me.uniqueT.JmeterPlugin.dubbo.client.GenericSClient;
+import me.uniqueT.JmeterPlugin.dubbo.util.JsonFormatTool;
 
 public class DubboSampler extends AbstractSampler {
 	
@@ -34,7 +34,7 @@ public class DubboSampler extends AbstractSampler {
 	 */
 	private static final long serialVersionUID = 2884657011121298989L;
 
-	@Override
+	//采样器执行的主方法
 	public SampleResult sample(Entry arg0) {
 		SampleResult result = new SampleResult();
         result.setSampleLabel(getName());

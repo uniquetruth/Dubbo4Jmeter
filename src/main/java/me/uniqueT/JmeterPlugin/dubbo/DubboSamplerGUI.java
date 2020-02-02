@@ -259,21 +259,18 @@ public class DubboSamplerGUI extends AbstractSamplerGui implements ActionListene
 		setName(SAMPLER_NAME);
 	}
 
-	@Override
 	public TestElement createTestElement() {
 		DubboSampler ds = new DubboSampler();
 		modifyTestElement(ds);
 		return ds;
 	}
 
-	@Override
 	public String getLabelResource() {
 		//not been called yet
 		return this.getClass().getSimpleName();
 	}
 
 	//data:from gui to sampler
-	@Override
 	public void modifyTestElement(TestElement te) {
 		super.configureTestElement(te);
 		DubboSampler ds = (DubboSampler)te;
