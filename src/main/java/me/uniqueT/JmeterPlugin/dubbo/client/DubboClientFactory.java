@@ -9,7 +9,7 @@ public class DubboClientFactory {
 		else if("Generic Service".equals(impName))
 			c = new GenericSClient();
 		else
-			throw new IllegalArgumentException("invalid implement :\"" + impName + "\"");
+			throw new IllegalArgumentException("实现类\"" + impName + "\"指定无效");
 		return c;
 	}
 

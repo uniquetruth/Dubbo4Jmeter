@@ -3,14 +3,16 @@ package me.uniqueT.JmeterPlugin.dubbo;
 import org.apache.jmeter.samplers.AbstractSampler;
 import org.apache.jmeter.samplers.Entry;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.util.JMeterUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import me.uniqueT.JmeterPlugin.dubbo.client.ClientCI;
-import me.uniqueT.JmeterPlugin.dubbo.client.DubboClientFactory;
-import me.uniqueT.JmeterPlugin.dubbo.client.GenericSClient;
+import com.ulic.loadtest.plugin.dubbo.client.ClientCI;
+import com.ulic.loadtest.plugin.dubbo.client.DubboClientFactory;
+import com.ulic.loadtest.plugin.dubbo.client.GenericSClient;
+import com.ulic.loadtest.plugin.dubbo.util.JsonFormatTool;
 
 public class DubboSampler extends AbstractSampler {
 	
@@ -20,35 +22,41 @@ public class DubboSampler extends AbstractSampler {
 	private static final String INVOKE_CMD="invokeCMD";
 	private static final String METHOD="method";
 	private static final String IMP_CLASS="impClass";
-	private static final String ARGS_TYPE="argsType";
+	private static final String ARG_TABLE="argTable";
+	private static final String ARG_TYPE="argType";
 	private static final String TIMEOUT="timeout";
+	
+	//支持-J参数指定的默认超时时间
+	private static int sysTimeout = JMeterUtils.getPropDefault("dubbo.timeout", 30000);
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2884657011121298989L;
 
+	@Override
 	public SampleResult sample(Entry arg0) {
 		SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
         ClientCI client = null;
-        String res = null;
+        String res = "";
         try {
             //System.out.println(impClass);
     		client = DubboClientFactory.getDubboClient(getImpClass());
-    		if(!"".equals(getTimeout())){
-    			client.setTimeout(Integer.valueOf(getTimeout()));
-    		}
-    		
-    		client.init(getIp(), Integer.valueOf(getPort()));
-    		
-    		if(client instanceof GenericSClient && !"".equals(getArgsType())){
-    			((GenericSClient)client).gsBuild(getInfName(), getMethod(), getInvokeCMD().replace("\n", ""), getArgsType());
-    		}else{
-    			client.build(getInfName(), getMethod(), getInvokeCMD().replace("\n", ""));
-    		}
     		result.setSamplerData(getSamplerData());
     		result.sampleStart();
+    		if(getTimeout()!=null && !"".equals(getTimeout())){
+    			client.setTime(Integer.parseInt(getTimeout()));
+    		}else{
+    			//System.out.println("sysTimeout is "+sysTimeout);
+    			client.setTime(sysTimeout);
+    		}
+    		client.init(getIp(), Integer.valueOf(getPort()));
+    		if(getArgType()==0){
+    			client.build(getInfName(), getMethod(), getInvokeCMD().replace("\n", ""));
+    		}else{
+				((GenericSClient)client).gsBuild(getInfName(), getMethod(), getArgTable());
+			}
     		res = client.send();
             result.sampleEnd();
     		result.setDataType(SampleResult.TEXT);
@@ -82,11 +90,18 @@ public class DubboSampler extends AbstractSampler {
 		}
         return result;
 	}
-
+	
 	private String getSamplerData() {
 		StringBuilder s = new StringBuilder();
-		s.append("ip:").append(getIp()).append("\nport:").append(getPort()).append("\nimplement:").append(getImpClass())
-			.append("\nmethod:").append(getMethod()).append("\nargement:").append(getInvokeCMD());
+		s.append("ip : ").append(getIp()).append("\nport : ").append(getPort())
+				.append("\ninterface name : ").append(getInfName())
+				.append("\nmethod : ").append(getMethod());
+		if(getArgType()==0){
+			s.append("\nargument : ").append(getInvokeCMD());
+		}else{
+			s.append("\nargument : ").append(getTableDataString());
+		}
+		s.append("\nimplment : ").append(getImpClass());
 		return s.toString();
 	}
 
@@ -138,20 +153,70 @@ public class DubboSampler extends AbstractSampler {
 		this.setProperty(METHOD, method);
 	}
 	
-	public String getArgsType() {
-		return this.getPropertyAsString(ARGS_TYPE);
+	//由于jmx文档不能存储数组结构，使用LinkedList<LinkedList<String>>类型来实现二维数组效果
+	public String[][] getArgTable() {
+		String rawStr = this.getPropertyAsString(ARG_TABLE);
+		if(rawStr==null || "".equals(rawStr))
+			return new String[0][0];
+		String[] str = rawStr.split(",,");
+		String[][] result = new String[str.length][2];
+		int i=0;
+		for(String s : str){
+			String[] paramMap = s.split("##");
+			result[i][0] = paramMap[0];
+			result[i][1] = paramMap[1];
+			i++;
+		}
+		return result;
+		
+		//String rawStr = this.getPropertyAsString(ARG_TABLE);
+		//if(p.getObjectValue()!=null && p.getObjectValue() instanceof String[][]){
+		//	return (String[][]) p.getObjectValue();
+		//}else{
+		//return new String[0][0];
+		//}
+		
 	}
 	
-	public void setArgsType(String argsType) {
-		this.setProperty(ARGS_TYPE, argsType);
+	private String getTableDataString(){
+		String rawStr = this.getPropertyAsString(ARG_TABLE);
+		if(rawStr==null || "".equals(rawStr))
+			return null;
+		String[] str = rawStr.split(",,");
+		StringBuilder sb = new StringBuilder();
+		for(String s : str){
+			String[] paramMap = s.split("##");
+			sb.append(paramMap[0]).append(":").append(paramMap[1]);
+		}
+		return sb.toString();
+	}
+
+	public void setArgTable(String[][] argTable) {
+		/*JMeterProperty p = new ObjectProperty(ARG_TABLE, argTable);
+		this.setProperty(p);*/
+		StringBuilder sb = new StringBuilder("");
+		for(String[] row : argTable){
+			sb.append(row[0]).append("##").append(row[1]).append(",,");
+		}
+		if(sb.length() > 0)
+			sb.setLength(sb.length()-2);
+		this.setProperty(ARG_TABLE, sb.toString());
 	}
 	
-	public String getTimeout() {
+	public int getArgType() {
+		return this.getPropertyAsInt(ARG_TYPE);
+	}
+
+	public void setArgType(int argType) {
+		this.setProperty(ARG_TYPE, argType);
+	}
+	
+	public String getTimeout(){
 		return this.getPropertyAsString(TIMEOUT);
 	}
 	
-	public void setTimeout(String timeout) {
-		this.setProperty(TIMEOUT, timeout);
+	public void setTimeout(String time_out) {
+		this.setProperty(TIMEOUT, time_out);
 	}
 
 }
