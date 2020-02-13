@@ -390,6 +390,7 @@ public class DubboSamplerGUI extends AbstractSamplerGui implements ActionListene
 				TempletHelper helper = new TempletHelper(infName, method);
 				textArea.setText(helper.getTemplet());
 			}catch(Exception ce){
+				ce.printStackTrace();
 				textArea.setText(ce.getClass().getName() + ": " + ce.getMessage());
 			}
 		

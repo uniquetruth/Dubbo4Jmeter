@@ -178,7 +178,7 @@ public class TempletHelper {
 		//s.deleteCharAt(s.length() - 1);
 		s.append("}");
 		//传入的不是复杂对象，则直接返回类型名称
-		if(s.length()==1){
+		if(s.length()==2){
 			s.setLength(0);
 			s.append(clazz.getName());
 		}
@@ -220,14 +220,14 @@ public class TempletHelper {
 		if(overrideFields!=null) {
 			ofs.addAll(overrideFields);
 		}
-		if("true".equals(deepReflect)) {
+		if("true".equals(deepReflect) && clazz.getSuperclass() != null) {
 			if(!clazz.getSuperclass().equals(Object.class)) {
 				s.append(getClassFieldString(clazz.getSuperclass(), ofs));
 				s.append(",");
 			}
 		}
-		
-		s.deleteCharAt(s.length() - 1);
+		if(s.length() > 0)
+			s.deleteCharAt(s.length() - 1);
 		return s.toString();
 		
 	}
